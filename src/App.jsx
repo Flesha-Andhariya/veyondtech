@@ -1,6 +1,5 @@
-
-import PostList from "./axios-posts/PostList";
+import VeyondTech from "./veyondtech/veyondtech";
 
 export default function App() {
-  return <PostList />;
+  return <VeyondTech />;
 }
