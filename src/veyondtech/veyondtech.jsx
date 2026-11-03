@@ -14,20 +14,28 @@ import sms from "./img/sms.png";
 import location from "./img/location.png";
 
 export default function Veyondtech() {
-  const [blogs, setBlogs] = useState([]);
 
-  // Get blogs from API
+  const [blogs, setBlogs] = useState([]);
+  const [selectedPostId, setSelectedPostId] = useState(null);
+  const [singlePost, setSinglePost] = useState(null);
+
+  const API_URL = "https://www.veyondtech.com/demo/wp-json/wp/v2/posts";
+
   useEffect(() => {
-    axios
-      .get("https://www.veyondtech.com/demo/wp-json/wp/v2/posts?_embed")
-      .then((response) => {
-        setBlogs(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    axios.get(`${API_URL}?_embed`).then((response) => {
+      setBlogs(response.data);
+    });
   }, []);
 
+  useEffect(() => {
+    if (selectedPostId) {
+      axios.get(`${API_URL}/${selectedPostId}?_embed`).then((response) => {
+        setSinglePost(response.data);
+      });
+    } else {
+      setSinglePost(null);
+    }
+  }, [selectedPostId]);
   return (
     <>
       <header className="veyond-header">
@@ -48,29 +56,67 @@ export default function Veyondtech() {
         </div>
       </header>
 
-      {/* Blog Section */}
       <div className="blog-section">
-        <div className="blog-container">
-          {blogs.map((blog) => (
-            <div className="blog-card" key={blog.id}>
-              <img
-                src={blog._embedded["wp:featuredmedia"][0].source_url}
-                alt="Blog"
-                className="blog-image"
-              />
-              <h2>{blog.title.rendered}</h2>
-              <div
-                className="blog-description"
-                dangerouslySetInnerHTML={{ __html: blog.excerpt.rendered,}}/>
-              <a href={blog.link} className="read-more">
-                Read More →
-              </a>
-            </div>
-          ))}
-        </div>
+        {selectedPostId ? (
+          <div className="single-post-container">
+            {singlePost && (
+              <>
+                {singlePost._embedded?.["wp:featuredmedia"]?.[0]?.source_url && (
+                  <img
+                    src={singlePost._embedded["wp:featuredmedia"][0].source_url}
+                    alt="Blog Feature"
+                    className="blog-image-large"
+                  />
+                )}
+                <h1>{singlePost.title.rendered}</h1>
+                <div
+                  className="blog-full-content"
+                  dangerouslySetInnerHTML={{
+                    __html: singlePost.content.rendered
+                  }}
+                />
+              </>
+            )}
+             <button
+              className="back-button"
+              onClick={() => setSelectedPostId(null)}
+            >
+              ← Back to Blogs
+            </button>
+          </div>
+
+        ) : (
+
+          <div className="blog-container">
+            {blogs.map((blog) => (
+              <div className="blog-card" key={blog.id}>
+                {blog._embedded?.["wp:featuredmedia"]?.[0]?.source_url && (
+                  <img
+                    src={blog._embedded["wp:featuredmedia"][0].source_url}
+                    alt="Blog"
+                    className="blog-image"
+                  />
+                )}
+                <h2>{blog.title.rendered}</h2>
+                <div
+                  className="blog-description"
+                  dangerouslySetInnerHTML={{
+                    __html: blog.excerpt.rendered
+                  }}
+                />
+                <button
+                  className="read-more"
+                  onClick={() => setSelectedPostId(blog.id)}
+                >
+                  Read More →
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-     <footer className="veyond-footer">
+      <footer className="veyond-footer">
         <div className="footer-top">
           <div className="footer-company">
             <img src={logo1} alt="Veyondtech Logo" />
@@ -133,7 +179,3 @@ export default function Veyondtech() {
     </>
   );
 }
-
-
-
-
