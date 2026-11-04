@@ -3,6 +3,12 @@
   padding: 0;
   box-sizing: border-box;
 }
+html,
+body,
+#root {
+  width: 100% !important;
+}
+
 @font-face {
   font-family: "BC Alphapipe";
   src: url("./fonts/BC-Alphapipe-Regular.woff") format("woff");
