@@ -278,6 +278,84 @@ body,
   margin-bottom: 25px;
 }
 
+
+/* Add Blog Form */
+
+.add-blog-form {
+  width: 60%;
+  margin: 50px auto;
+  padding: 35px;
+  background: #e3e3e3;
+  border-radius: 20px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.40);
+}
+.add-blog-form h2 {
+  font-size: 28px;
+  color: #36257c;
+  margin-bottom: 30px;
+  font-family: "BC Alphapipe", sans-serif;
+}
+.add-blog-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.add-blog-form label {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c2c2c;
+  text-align: left;
+  font-family: "BC Alphapipe", sans-serif;
+}
+.add-blog-form input,
+.add-blog-form textarea,
+.add-blog-form select {
+  width: 100%;
+  padding: 13px 15px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #191a23;
+  background: #ffffff;
+  border: 1px solid #d5d5d5;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+.add-blog-form input,
+.add-blog-form select {
+  height: 48px;
+}
+.add-blog-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+.add-blog-form input::placeholder,
+.add-blog-form textarea::placeholder {
+  color: #999999;
+}
+.add-blog-form input:focus,
+.add-blog-form textarea:focus,
+.add-blog-form select:focus {
+  border-color: #191a23;
+}
+.add-blog-form button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 15px;
+  background: #191a23;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.add-blog-form button:hover {
+  background: #444653;
+}
+
+
 /* Mobile Responsive */
 @media (max-width: 767px) {
   .veyond-header,

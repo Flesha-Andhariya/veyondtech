@@ -18,14 +18,58 @@ export default function Veyondtech() {
   const [blogs, setBlogs] = useState([]);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [singlePost, setSinglePost] = useState(null);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [status, setStatus] = useState("draft");
+  const [excerpt, setExcerpt] = useState("");
+  const [slug, setSlug] = useState("");
+  const [commentStatus, setCommentStatus] = useState("open");
+  const [imageId, setImageId] = useState("");
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      try {
+        await axios.post(
+          API_URL,
+          {
+            title: title,
+            content: content,
+            status: status,
+            excerpt: excerpt,
+            slug: slug,
+            comment_status: commentStatus,
+            featured_media: imageId
+          },
+          {
+            auth: {
+              username: "admin",
+              password: "bgjT Dh1i 822c gLJM CapM NM1Q"
+            }
+          }
+        );
+        alert("Blog Added Successfully!");
+        setTitle("");
+        setContent("");
+        setStatus("draft");
+        setExcerpt("");
+        setSlug("");
+        setCommentStatus("open");
+        const response = await axios.get(`${API_URL}?per_page=100&_embed`);
+        setBlogs(response.data);
+      } 
+      catch (error) {
+        console.log(error);
+        alert("Blog Not Added!");
+      }
+    };
 
   const API_URL = "https://www.veyondtech.com/demo/wp-json/wp/v2/posts";
 
-  useEffect(() => {
-    axios.get(`${API_URL}?_embed`).then((response) => {
-      setBlogs(response.data);
-    });
-  }, []);
+    useEffect(() => {
+      axios.get(`${API_URL}?per_page=100&_embed`).then((response) => {
+        setBlogs(response.data);
+      });
+    }, []);
 
   useEffect(() => {
     if (selectedPostId) {
@@ -57,6 +101,75 @@ export default function Veyondtech() {
       </header>
 
       <div className="blog-section">
+     <div className="add-blog-form">
+          <h2>Add New Blog</h2>
+          <form onSubmit={handleSubmit}>
+            <label>Title :</label>
+            <input
+              type="text"
+              placeholder="Enter Blog Title"
+              name="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+            <label>Content :</label>
+            <textarea
+              placeholder="Enter Blog Content"
+              name="content"
+              rows="5"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              required
+            ></textarea>
+            <label>Status :</label>
+            <select
+              name="status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="">Select Status</option>
+              <option value="publish">Publish</option>
+              <option value="draft">Draft</option>
+            </select>
+            <label>Excerpt :</label>
+            <textarea
+              placeholder="Enter Blog Excerpt"
+              name="excerpt"
+              rows="3"
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+            ></textarea>
+            <label>Slug :</label>
+            <input
+              type="text"
+              placeholder="Enter Blog Slug"
+              name="slug"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+            />
+            <label>Comment Status :</label>
+            <select
+              name="comment_status"
+              value={commentStatus}
+              onChange={(e) => setCommentStatus(e.target.value)}
+            >
+              <option value="">Select Comment Status</option>
+              <option value="open">Open</option>
+              <option value="closed">Closed</option>
+            </select>
+            <label>Image ID :</label>
+              <input
+                type="number"
+                value={imageId}
+                onChange={(e) => setImageId(e.target.value)}
+                placeholder="Enter Image ID"
+                required
+              />
+            <button type="submit">Add Blog</button>
+          </form>
+        </div>
+
         {selectedPostId ? (
           <div className="single-post-container">
             {singlePost && (
