@@ -217,16 +217,14 @@ body,
   color: #000;
   margin: 10px 22px;
 }
-
 .blog-description {
   color: #666;
   font-size: 15px;
   margin: 20px;
 }
-.read-more,.back-button {
+.read-more,.back-button,.edit-button {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
   margin: 0 25px 25px;
   padding: 12px 24px;
   background: #4b2bd3;
@@ -239,9 +237,12 @@ body,
   border: none;
 }
 .back-button{
-  margin-top: 50px;
+  margin: 50px 0px 50px 500px;  
 }
-.read-more:hover,.back-button:hover {
+.edit-button{
+  margin: 50px 500px 50px 0;
+}
+.read-more:hover,.back-button:hover,.edit-button:hover {
   background: #a3a2a2;
   color: #000;
 }
@@ -277,10 +278,6 @@ body,
   border-radius: 10px;
   margin-bottom: 25px;
 }
-
-
-/* Add Blog Form */
-
 .add-blog-form {
   width: 60%;
   margin: 50px auto;
@@ -354,7 +351,6 @@ body,
 .add-blog-form button:hover {
   background: #444653;
 }
-
 
 /* Mobile Responsive */
 @media (max-width: 767px) {

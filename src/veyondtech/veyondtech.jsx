@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "./style.css";
-
 import logo from "./img/veyondtech-logo.png";
 import logo1 from "./img/veyondtech.png";
 import insta from "./img/insta.png";
@@ -14,7 +13,14 @@ import sms from "./img/sms.png";
 import location from "./img/location.png";
 
 export default function Veyondtech() {
-
+  const API_URL = "https://www.veyondtech.com/demo/wp-json/wp/v2/posts";
+  const authConfig = {
+    auth: {
+      username: "admin",
+      password: "bgjT Dh1i 822c gLJM CapM NM1Q"
+    }
+  };
+  
   const [blogs, setBlogs] = useState([]);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [singlePost, setSinglePost] = useState(null);
@@ -25,61 +31,111 @@ export default function Veyondtech() {
   const [slug, setSlug] = useState("");
   const [commentStatus, setCommentStatus] = useState("open");
   const [imageId, setImageId] = useState("");
-
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      try {
-        await axios.post(
-          API_URL,
-          {
-            title: title,
-            content: content,
-            status: status,
-            excerpt: excerpt,
-            slug: slug,
-            comment_status: commentStatus,
-            featured_media: imageId
-          },
-          {
-            auth: {
-              username: "admin",
-              password: "bgjT Dh1i 822c gLJM CapM NM1Q"
-            }
-          }
-        );
-        alert("Blog Added Successfully!");
-        setTitle("");
-        setContent("");
-        setStatus("draft");
-        setExcerpt("");
-        setSlug("");
-        setCommentStatus("open");
-        const response = await axios.get(`${API_URL}?per_page=100&_embed`);
-        setBlogs(response.data);
-      } 
-      catch (error) {
-        console.log(error);
-        alert("Blog Not Added!");
-      }
-    };
-
-  const API_URL = "https://www.veyondtech.com/demo/wp-json/wp/v2/posts";
-
-    useEffect(() => {
-      axios.get(`${API_URL}?per_page=100&_embed`).then((response) => {
-        setBlogs(response.data);
-      });
-    }, []);
-
+  const [editPostId, setEditPostId] = useState(null);
+  const [showForm, setShowForm] = useState(true);
+  const getBlogs = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}?per_page=100&_embed`
+      );
+      setBlogs(response.data);
+    } catch (error) {
+      console.log(error);
+      alert("Blogs Not Found!");
+    }
+  };
+  useEffect(() => {
+    getBlogs();
+  }, []);
   useEffect(() => {
     if (selectedPostId) {
-      axios.get(`${API_URL}/${selectedPostId}?_embed`).then((response) => {
-        setSinglePost(response.data);
-      });
+      axios.get(`${API_URL}/${selectedPostId}?_embed`)
+        .then((response) => {
+          setSinglePost(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     } else {
       setSinglePost(null);
     }
   }, [selectedPostId]);
+  const resetForm = () => {
+    setTitle("");
+    setContent("");
+    setStatus("publish");
+    setExcerpt("");
+    setSlug("");
+    setCommentStatus("open");
+    setImageId("");
+    setEditPostId(null);
+  };
+  const handleEdit = async (blog) => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/${blog.id}?context=edit`,
+        authConfig
+      );
+      const post = response.data;
+      setEditPostId(post.id);
+      setTitle(post.title.raw);
+      setContent(post.content.raw);
+      setStatus(post.status);
+      setExcerpt(post.excerpt.raw);
+      setSlug(post.slug);
+      setCommentStatus(post.comment_status);
+      setImageId(post.featured_media || "");
+      setShowForm(true);
+      setSelectedPostId(null);
+
+      // Scroll to form
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+    } catch (error) {
+      console.log(error);
+      alert("Unable to Edit Blog!");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const blogData = {
+      title: title,
+      content: content,
+      status: status,
+      excerpt: excerpt,
+      slug: slug,
+      comment_status: commentStatus,
+      featured_media: Number(imageId)
+    };
+    try {
+      if (editPostId) {
+        await axios.put(
+          `${API_URL}/${editPostId}`,
+          blogData,
+          authConfig
+        );
+        alert("Blog Updated Successfully!");
+      } else {
+        await axios.post(
+          API_URL,
+          blogData,
+          authConfig
+        );
+        alert("Blog Added Successfully!");
+      }
+      resetForm();
+      setSelectedPostId(null);
+      setShowForm(false);
+      getBlogs();
+    } catch (error) {
+      console.log(error.response?.data || error);
+    }
+  };
+
   return (
     <>
       <header className="veyond-header">
@@ -101,14 +157,16 @@ export default function Veyondtech() {
       </header>
 
       <div className="blog-section">
-     <div className="add-blog-form">
-          <h2>Add New Blog</h2>
+        {showForm && (
+        <div className="add-blog-form">
+          <h2>
+            {editPostId ? "Edit Blog" : "Add New Blog"}
+          </h2>
           <form onSubmit={handleSubmit}>
             <label>Title :</label>
             <input
               type="text"
               placeholder="Enter Blog Title"
-              name="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -116,7 +174,6 @@ export default function Veyondtech() {
             <label>Content :</label>
             <textarea
               placeholder="Enter Blog Content"
-              name="content"
               rows="5"
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -124,18 +181,15 @@ export default function Veyondtech() {
             ></textarea>
             <label>Status :</label>
             <select
-              name="status"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
             >
-              <option value="">Select Status</option>
               <option value="publish">Publish</option>
               <option value="draft">Draft</option>
             </select>
             <label>Excerpt :</label>
             <textarea
               placeholder="Enter Blog Excerpt"
-              name="excerpt"
               rows="3"
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
@@ -144,31 +198,31 @@ export default function Veyondtech() {
             <input
               type="text"
               placeholder="Enter Blog Slug"
-              name="slug"
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
             />
             <label>Comment Status :</label>
             <select
-              name="comment_status"
               value={commentStatus}
               onChange={(e) => setCommentStatus(e.target.value)}
             >
-              <option value="">Select Comment Status</option>
               <option value="open">Open</option>
               <option value="closed">Closed</option>
             </select>
             <label>Image ID :</label>
-              <input
-                type="number"
-                value={imageId}
-                onChange={(e) => setImageId(e.target.value)}
-                placeholder="Enter Image ID"
-                required
-              />
-            <button type="submit">Add Blog</button>
+            <input
+              type="number"
+              placeholder="Enter Image ID"
+              value={imageId}
+              onChange={(e) => setImageId(e.target.value)}
+              required
+            />
+            <button type="submit">
+              {editPostId ? "Update Blog" : "Add Blog"}
+            </button>
           </form>
         </div>
+        )}
 
         {selectedPostId ? (
           <div className="single-post-container">
@@ -177,7 +231,7 @@ export default function Veyondtech() {
                 {singlePost._embedded?.["wp:featuredmedia"]?.[0]?.source_url && (
                   <img
                     src={singlePost._embedded["wp:featuredmedia"][0].source_url}
-                    alt="Blog Feature"
+                    alt="Blog"
                     className="blog-image-large"
                   />
                 )}
@@ -188,12 +242,21 @@ export default function Veyondtech() {
                     __html: singlePost.content.rendered
                   }}
                 />
+                <button
+                  className="edit-button"
+                  onClick={() => handleEdit(singlePost)}
+                >
+                  Edit Blog
+                </button>
               </>
             )}
-             <button
+            <button
               className="back-button"
-              onClick={() => setSelectedPostId(null)}
-            >
+             onClick={() => {
+                setSelectedPostId(null);
+                setShowForm(true);
+              }}
+                          >
               ← Back to Blogs
             </button>
           </div>
@@ -219,7 +282,10 @@ export default function Veyondtech() {
                 />
                 <button
                   className="read-more"
-                  onClick={() => setSelectedPostId(blog.id)}
+                 onClick={() => {
+                    setShowForm(false);
+                    setSelectedPostId(blog.id);
+                  }}
                 >
                   Read More →
                 </button>
@@ -292,3 +358,16 @@ export default function Veyondtech() {
     </>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
