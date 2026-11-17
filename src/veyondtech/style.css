@@ -52,14 +52,14 @@ body,
   font-size: 16px;
   font-weight: bold;
 }
-.veyond-nav {
+.veyond-nav{
   display: flex;
   align-items: center;
   gap: 40px;
   margin-left: auto;
   margin-right: auto;
 }
-.veyond-nav a {
+.veyond-nav a,.nav-menu-button {
   position: relative;
   display: block;
   height: 24px;
@@ -69,12 +69,15 @@ body,
   font-size: 15px;
   font-weight: 600;
   line-height: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;  
 }
-.veyond-nav a span {
+.veyond-nav a span,.nav-menu-button span{
   display: block;
   transition: transform 0.3s ease;
 }
-.veyond-nav a::before {
+.veyond-nav a::before,.nav-menu-button::before{
   content: attr(data-text);
   position: absolute;
   top: 0;
@@ -84,10 +87,10 @@ body,
   transition: transform 0.4s ease;
   color: white;
 }
-.veyond-nav a:hover span {
+.veyond-nav a:hover span,.nav-menu-button:hover span  {
   transform: translateY(-100%);
 }
-.veyond-nav a:hover::before {
+.veyond-nav a:hover::before,.nav-menu-button:hover::before  {
   transform: translateY(0);
 }
 .footer-top{
@@ -194,7 +197,7 @@ body,
 }
 .blog-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 35px;
 }
 .blog-card {
@@ -279,77 +282,94 @@ body,
   margin-bottom: 25px;
 }
 .add-blog-form {
+  margin: 0 auto;
   width: 60%;
-  margin: 50px auto;
   padding: 35px;
   background: #e3e3e3;
   border-radius: 20px;
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.40);
 }
-.add-blog-form h2 {
-  font-size: 28px;
-  color: #36257c;
-  margin-bottom: 30px;
-  font-family: "BC Alphapipe", sans-serif;
+.form-heading {
+  margin-bottom: 48px;
 }
-.add-blog-form form {
+.form-heading h2 {
+  font-size: 24px;
+  color: #263e65;
+  margin-bottom: 8px;
+}
+.form-heading p {
+  font-size: 14px;
+  color: #8a94a6;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 26px 22px;
+}
+.form-group {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
-.add-blog-form label {
-  font-size: 18px;
-  font-weight: 600;
-  color: #2c2c2c;
-  text-align: left;
-  font-family: "BC Alphapipe", sans-serif;
+.form-group.full-width {
+  grid-column: 1 / -1;
 }
-.add-blog-form input,
-.add-blog-form textarea,
-.add-blog-form select {
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #263e65;
+}
+.form-group label span {
+  color: #e54848;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
   width: 100%;
-  padding: 13px 15px;
-  font-size: 15px;
+  padding: 13px 14px;
+  font-size: 14px;
   font-family: inherit;
-  color: #191a23;
-  background: #ffffff;
-  border: 1px solid #d5d5d5;
-  border-radius: 6px;
+  color: #263e65;
+  background: #fff;
+  border: 1px solid #dfe4ec;
+  border-radius: 9px;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: 0.3s ease;
 }
-.add-blog-form input,
-.add-blog-form select {
+.form-group input,
+.form-group select {
   height: 48px;
 }
-.add-blog-form textarea {
+.form-group textarea {
   resize: vertical;
   min-height: 100px;
 }
-.add-blog-form input::placeholder,
-.add-blog-form textarea::placeholder {
-  color: #999999;
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #263e65;
+  box-shadow: 0 0 0 3px rgba(38, 62, 101, 0.08);
 }
-.add-blog-form input:focus,
-.add-blog-form textarea:focus,
-.add-blog-form select:focus {
-  border-color: #191a23;
+.form-group small {
+  color: #8a94a6;
+  font-size: 12px;
+  text-align: center;
 }
-.add-blog-form button {
+.submit-blog-btn,.back-to-blogs-btn {
   width: 100%;
   padding: 14px;
-  margin-top: 15px;
-  background: #191a23;
-  color: #ffffff;
+  background: #263e65;
+  color: #fff;
   border: none;
-  border-radius: 6px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: 0.3s ease;
+  margin-top: 15px;
 }
-.add-blog-form button:hover {
-  background: #444653;
+.submit-blog-btn:hover,.back-to-blogs-btn:hover{
+  background: #192e50;
 }
 
 /* Mobile Responsive */
@@ -415,4 +435,28 @@ body,
     font-size: 22px;
     margin: 25px 0 10px;
   }
+
+  .add-blog-form {
+    width: 100%;
+    padding: 20px;
+    margin: 15px auto;
+  }
+
+  .form-heading {
+    margin-bottom: 30px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .form-group.full-width {
+    grid-column: auto;
+  }
+
+  .form-divider {
+    margin: 30px 0 25px;
+  }
+
 }
