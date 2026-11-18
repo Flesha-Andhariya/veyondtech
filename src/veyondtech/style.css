@@ -8,7 +8,6 @@ body,
 #root {
   width: 100% !important;
 }
-
 @font-face {
   font-family: "BC Alphapipe";
   src: url("./fonts/BC-Alphapipe-Regular.woff") format("woff");
@@ -293,9 +292,9 @@ body,
   margin: 0 auto;
   width: 60%;
   padding: 35px;
-  background: #e3e3e3;
+  background: #fff;
   border-radius: 20px;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.40);
+  box-shadow: 0 5px 8px rgba(0, 0, 0, 0.40);
 }
 .form-heading {
   margin-bottom: 48px;
