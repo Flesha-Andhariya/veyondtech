@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "./style.css";
+
 import logo from "./img/veyondtech-logo.png";
 import logo1 from "./img/veyondtech.png";
 import insta from "./img/insta.png";
@@ -35,9 +36,11 @@ export default function Veyondtech() {
   const [imageId, setImageId] = useState("");
   const [editPostId, setEditPostId] = useState(null);
   const [showForm, setShowForm] = useState(false);
-
+  const [loading, setLoading] = useState(false);
+  const [singleLoading, setSingleLoading] = useState(false);
   const getBlogs = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         `${API_URL}?per_page=100&_embed`
       );
@@ -46,26 +49,36 @@ export default function Veyondtech() {
      catch (error) {
       console.log(error);
       alert("Blogs Not Found!");
+    } 
+    finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
     getBlogs();
   }, []);
-
   useEffect(() => {
     if (selectedPostId) {
-      axios.get(`${API_URL}/${selectedPostId}?_embed`)
-        .then((response) => {
+      const getSingleBlog = async () => {
+        try {
+          setSingleLoading(true);
+          setSinglePost(null);
+          const response = await axios.get(
+            `${API_URL}/${selectedPostId}?_embed`
+          );
           setSinglePost(response.data);
-        })
-        .catch((error) => {
+        } catch (error) {
           console.log(error);
-        });
+          alert("Blog Not Found!");
+        } finally {
+          setSingleLoading(false);
+        }
+      };
+      getSingleBlog();
     } else {
       setSinglePost(null);
     }
   }, [selectedPostId]);
-
   const resetForm = () => {
     setTitle("");
     setContent("");
@@ -76,7 +89,6 @@ export default function Veyondtech() {
     setImageId("");
     setEditPostId(null);
   };
-
   const handleAddBlog = () => {
     resetForm();
     setSelectedPostId(null);
@@ -86,7 +98,6 @@ export default function Veyondtech() {
       behavior: "smooth"
     });
   };
-
   const handleEdit = async (blog) => {
     try {
       const response = await axios.get(
@@ -104,18 +115,15 @@ export default function Veyondtech() {
       setImageId(post.featured_media || "");
       setShowForm(true);
       setSelectedPostId(null);
-
       window.scrollTo({
         top: 0,
         behavior: "smooth"
       });
-
     } catch (error) {
       console.log(error);
       alert("Unable to Edit Blog!");
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const blogData = {
@@ -127,7 +135,6 @@ export default function Veyondtech() {
       comment_status: commentStatus,
       featured_media: Number(imageId)
     };
-
     try {
       if (editPostId) {
         await axios.put(
@@ -152,7 +159,8 @@ export default function Veyondtech() {
         top: 0,
         behavior: "smooth"
       });
-    } catch (error) {
+    }
+     catch (error) {
       console.log(error.response?.data || error);
       alert("Something went wrong!");
     }
@@ -160,7 +168,7 @@ export default function Veyondtech() {
 
   return (
     <>
-      <header className="veyond-header">
+     <header className="veyond-header">
         <div className="veyond-navbar">
           <img src={logo} alt="Company Logo" />
           <nav className="veyond-nav">
@@ -189,13 +197,16 @@ export default function Veyondtech() {
       <div className="blog-section">
         {showForm && (
           <div className="add-blog-form">
+
             <div className="form-heading">
               <h2>
                 {editPostId ? "Edit Blog" : "Add New Blog"}
               </h2>
               <p>Create and manage your blog content.</p>
             </div>
+
             <form onSubmit={handleSubmit}>
+
               <div className="form-grid">
 
                 <div className="form-group">
@@ -283,37 +294,43 @@ export default function Veyondtech() {
                 </div>
               </div>
 
-              <div className="form-divider"></div>
-              <button
-                type="submit"
-                className="submit-blog-btn"
-              >
-                {editPostId ? "Update Blog" : "+ Add Blog"}
-              </button>
+              <div className="form-buttons">
+                <button
+                  type="submit"
+                  className="submit-blog-btn"
+                >
+                  {editPostId ? "Update Blog" : "+ Add Blog"}
+                </button>
+
+                <button
+                  type="button"
+                  className="back-to-blogs-btn"
+                  onClick={() => {
+                    resetForm();
+                    setShowForm(false);
+                    setSelectedPostId(null);
+                    window.scrollTo({
+                      top: 0,
+                      behavior: "smooth"
+                    });
+                  }}
+                >
+                  ← Back to Blogs
+                </button>
+              </div>
             </form>
-
-            <button
-              type="button"
-              className="back-to-blogs-btn"
-              onClick={() => {
-                resetForm();
-                setShowForm(false);
-                setSelectedPostId(null);
-
-                window.scrollTo({
-                  top: 0,
-                  behavior: "smooth"
-                });
-              }}
-            >
-              ← Back to Blogs
-            </button>
           </div>
         )}
 
         {selectedPostId ? (
           <div className="single-post-container">
-            {singlePost && (
+            {singleLoading ? (
+              <div className="loading">
+                <div className="spinner"></div>
+                <p>Loading Blog...</p>
+              </div>
+
+            ) : singlePost && (
               <>
                 {singlePost._embedded?.["wp:featuredmedia"]?.[0]?.source_url && (
                   <img
@@ -333,66 +350,82 @@ export default function Veyondtech() {
                     __html: singlePost.content.rendered
                   }}
                 />
-                <button
-                  className="edit-button"
-                  onClick={() => handleEdit(singlePost)}
-                >
-                  Edit Blog
-                </button>
+
+                <div className="single-post-actions">
+                  <button
+                    className="edit-button"
+                    onClick={() => handleEdit(singlePost)}
+                  >
+                    Edit Blog
+                  </button>
+                  <button
+                    className="back-button"
+                    onClick={() => {
+                      setSelectedPostId(null);
+                      setShowForm(false);
+                      window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                      });
+                    }}
+                  >
+                    ← Back to Blogs
+                  </button>
+                </div>
               </>
             )}
-            <button
-              className="back-button"
-              onClick={() => {
-                setSelectedPostId(null);
-                setShowForm(false);
-              }}
-            >
-              ← Back to Blogs
-            </button>
           </div>
 
         ) : (
 
           !showForm && (
             <div className="blog-container">
-              {blogs.map((blog) => (
-                <div className="blog-card" key={blog.id}>
-                  {blog._embedded?.["wp:featuredmedia"]?.[0]?.source_url && (
-                    <img
-                      src={
-                        blog._embedded["wp:featuredmedia"][0].source_url
-                      }
-                      alt="Blog"
-                      className="blog-image"
-                    />
-                  )}
-                  <h2>
-                    {blog.title.rendered}
-                  </h2>
-                  <div
-                    className="blog-description"
-                    dangerouslySetInnerHTML={{
-                      __html: blog.excerpt.rendered
-                    }}
-                  />
-                  <button
-                    className="read-more"
-                    onClick={() => {
-                      setShowForm(false);
-                      setSelectedPostId(blog.id);
-                    }}
-                  >
-                    Read More →
-                  </button>
+              {loading ? (
+                <div className="loading">
+                  <div className="spinner"></div>
+                  <p>Loading Blogs...</p>
                 </div>
-              ))}
+
+              ) : (
+
+                blogs.map((blog) => (
+                  <div className="blog-card" key={blog.id}>
+                    {blog._embedded?.["wp:featuredmedia"]?.[0]?.source_url && (
+                      <img
+                        src={
+                          blog._embedded["wp:featuredmedia"][0].source_url
+                        }
+                        alt="Blog"
+                        className="blog-image"
+                      />
+                    )}
+                    <h2>
+                      {blog.title.rendered}
+                    </h2>
+                    <div
+                      className="blog-description"
+                      dangerouslySetInnerHTML={{
+                        __html: blog.excerpt.rendered
+                      }}
+                    />
+                    <button
+                      className="read-more"
+                      onClick={() => {
+                        setShowForm(false);
+                        setSelectedPostId(blog.id);
+                      }}
+                    >
+                      Read More →
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
           )
         )}
       </div>
 
-      <footer className="veyond-footer">
+     <footer className="veyond-footer">
         <div className="footer-top">
           <div className="footer-company">
             <img src={logo1} alt="Veyondtech Logo" />
@@ -455,7 +488,3 @@ export default function Veyondtech() {
     </>
   );
 }
-
-
-
-
