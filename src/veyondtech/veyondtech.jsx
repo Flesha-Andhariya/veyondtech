@@ -717,22 +717,7 @@ function SingleBlog({ getBlogs }) {
           />
 
           <div className="single-post-actions">
-            <Link
-              to={`/edit-blog/${singlePost.id}`}
-              className="edit-button"
-            >
-              Edit Blog
-            </Link>
-
-            <button
-              type="button"
-              className="delete-button"
-              onClick={handleDelete}
-              disabled={deleting}
-            >
-              {deleting ? "Deleting..." : "Delete Blog"}
-            </button>
-
+           
             <Link
               to="/"
               className="back-button"

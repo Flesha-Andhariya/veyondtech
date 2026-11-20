@@ -406,11 +406,9 @@ body,
   width: 100%;
 }
 
-.single-post-actions .edit-button,
-.single-post-actions .back-button,
-.single-post-actions .delete-button {
+.single-post-actions .back-button{
   padding: 15px;
-  width: 100%;
+  width: 30%;
   border: none;
   border-radius: 8px;
   background: #4b2bdc;
@@ -420,11 +418,10 @@ body,
   text-decoration: none;
   line-height: 1.2;
   cursor: pointer;
+  margin: 0 auto;
   transition: all 0.3s ease;
 }
-.single-post-actions .edit-button:hover,
-.single-post-actions .back-button:hover,
-.single-post-actions .delete-button:hover {
+.single-post-actions .back-button:hover {
   background: #170646;
   color: white;
   transform: translateY(-3px);
