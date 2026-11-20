@@ -7,7 +7,8 @@ import {
   Route,
   useNavigate,
   useParams,
-  Navigate
+  Navigate,
+  useLocation
 } from "react-router-dom";
 
 import "./style.css";
@@ -44,7 +45,7 @@ export default function VeyondTech() {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${API_URL}?per_page=100&_embed`,
+        `${API_URL}?per_page=100&status=any&_embed`,
         authConfig
       );
       setBlogs(response.data);
@@ -225,7 +226,6 @@ export default function VeyondTech() {
 
   );
 }
-
 function Home({ blogs, loading }) {
 
   return (
@@ -239,7 +239,7 @@ function Home({ blogs, loading }) {
 
       ) : blogs.length > 0 ? (
 
-        blogs.map((blog) => (
+        blogs.filter((blog) => blog.status === "publish").map((blog) => (
           <div className="blog-card" key={blog.id}>
             {blog._embedded?.["wp:featuredmedia"]?.[0]?.source_url && (
               <img
@@ -281,9 +281,6 @@ function Home({ blogs, loading }) {
 function BlogForm({ getBlogs, blogs, loading }) {
   const navigate = useNavigate();
   const { id } = useParams();
-
-  // FORM STATES
-
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [status, setStatus] = useState("publish");
@@ -365,8 +362,16 @@ function BlogForm({ getBlogs, blogs, loading }) {
         );
         alert("Blog Added Successfully!");
       }
-      await getBlogs();
+      
+     await getBlogs();
       navigate("/");
+
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }, 500);
+
     } catch (error) {
       console.log(error.response?.data || error);
       alert("Something Went Wrong!");

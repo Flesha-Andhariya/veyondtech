@@ -572,6 +572,7 @@ body,
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #fff;
 }
 .footer-graphic-logo {
   position: absolute;
