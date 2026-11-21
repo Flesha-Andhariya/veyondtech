@@ -132,9 +132,7 @@ export default function VeyondTech() {
 
           <Route
             path="/blog/:id"
-            element={
-              <SingleBlog getBlogs={getBlogs} />
-            }
+            element={<SingleBlog getBlogs={getBlogs} blogs={blogs} />}
           />
 
           <Route
@@ -633,7 +631,8 @@ function BlogForm({ getBlogs, blogs, loading }) {
   );
 }
 
-function SingleBlog({ getBlogs }) {
+
+function SingleBlog({ getBlogs, blogs }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [singlePost, setSinglePost] = useState(null);
@@ -645,10 +644,12 @@ function SingleBlog({ getBlogs }) {
       try {
         setSingleLoading(true);
         setSinglePost(null);
+
         const response = await axios.get(
           `${API_URL}/${id}?_embed`,
           authConfig
         );
+
         setSinglePost(response.data);
       } catch (error) {
         console.log(error.response?.data || error);
@@ -658,6 +659,7 @@ function SingleBlog({ getBlogs }) {
         setSingleLoading(false);
       }
     };
+
     getSingleBlog();
   }, [id, navigate]);
 
@@ -667,12 +669,15 @@ function SingleBlog({ getBlogs }) {
     );
 
     if (!confirmDelete) return;
+
     try {
       setDeleting(true);
+
       await axios.delete(
         `${API_URL}/${id}?force=true`,
         authConfig
       );
+
       alert("Blog Deleted Successfully!");
       await getBlogs();
       navigate("/");
@@ -684,48 +689,72 @@ function SingleBlog({ getBlogs }) {
     }
   };
 
-  return (
+ const publishedBlogs = blogs.filter(
+      (blog) => blog.status === "publish"
+    );
 
+    const currentIndex = publishedBlogs.findIndex(
+      (blog) => blog.id === Number(id)
+    );
+
+    const previousBlog = publishedBlogs[currentIndex - 1];
+    const nextBlog = publishedBlogs[currentIndex + 1];
+    
+  return (
     <div className="single-post-container">
       {singleLoading ? (
         <div className="loading">
           <div className="spinner"></div>
           <p>Loading Blog...</p>
         </div>
+      ) : (
+        singlePost && (
+          <>
+            {singlePost._embedded?.["wp:featuredmedia"]?.[0]?.source_url && (
+              <img
+                src={
+                  singlePost._embedded["wp:featuredmedia"][0].source_url
+                }
+                alt="Blog"
+                className="blog-image-large"
+              />
+            )}
 
-      ) : singlePost && (
+            <h1>{singlePost.title.rendered}</h1>
 
-        <>
-          {singlePost._embedded?.["wp:featuredmedia"]?.[0]?.source_url && (
-            <img
-              src={
-                singlePost._embedded["wp:featuredmedia"][0].source_url
-              }
-              alt="Blog"
-              className="blog-image-large"
+            <div
+              className="blog-full-content"
+              dangerouslySetInnerHTML={{
+                __html: singlePost.content.rendered
+              }}
             />
-          )}
 
-          <h1>
-            {singlePost.title.rendered}
-          </h1>
-          <div
-            className="blog-full-content"
-            dangerouslySetInnerHTML={{
-              __html: singlePost.content.rendered
-            }}
-          />
+            <div className="single-post-actions">
+             <div className="blog-navigation">
+                <button
+                  type="button"
+                  className="previous-blog-button"
+                  disabled={!previousBlog}
+                  onClick={() => navigate(`/blog/${previousBlog.id}`)}
+                >
+                  ← Previous Blog
+                </button>
+                    <Link to="/" className="back-button">
+                       Back to Blogs
+                    </Link>
 
-          <div className="single-post-actions">
-           
-            <Link
-              to="/"
-              className="back-button"
-            >
-              ← Back to Blogs
-            </Link>
-          </div>
-        </>
+                <button
+                  type="button"
+                  className="next-blog-button"
+                  disabled={!nextBlog}
+                  onClick={() => navigate(`/blog/${nextBlog.id}`)}
+                >
+                  Next Blog →
+                </button>
+              </div>
+            </div>
+          </>
+        )
       )}
     </div>
   );
